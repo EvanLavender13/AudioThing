@@ -1,0 +1,8 @@
+{
+    "dependencies": [
+        "fftw3",
+        "imgui-sfml",
+        "implot",
+        "sfml"
+    ]
+}
