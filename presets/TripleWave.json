@@ -1,0 +1,55 @@
+{
+  "name": "Triple Wave",
+  "syncMode": false,
+  "visualizerConfig": {
+    "smoothness": 3,
+    "rotationSpeed": 0.15,
+    "waveformHeight": 180,
+    "radiusFactor": 0.7,
+    "thickness": 8,
+    "hueOffset": 0.8,
+    "hue": 0,
+    "hueRotationSpeed": 0.3
+  },
+  "shaderConfig": {
+    "fadeFactor": 0.95,
+    "pixelSize": 1,
+    "blendFactor": 0.2,
+    "fadeThreshold": 0.005
+  },
+  "waveforms": [
+    {
+      "displayHeight": 200,
+      "smoothness": 2,
+      "rotationSpeed": 0.5,
+      "radiusFactor": 0.8,
+      "thickness": 3,
+      "hueOffset": 0,
+      "alpha": 255,
+      "thickAlpha": 200,
+      "enabled": true
+    },
+    {
+  "displayHeight": 150,
+ "smoothness": 5,
+ "rotationSpeed": -0.3,
+      "radiusFactor": 0.6,
+      "thickness": 5,
+      "hueOffset": 0.33,
+      "alpha": 220,
+      "thickAlpha": 180,
+      "enabled": true
+    },
+    {
+      "displayHeight": 100,
+      "smoothness": 8,
+      "rotationSpeed": 0.8,
+      "radiusFactor": 0.4,
+   "thickness": 7,
+      "hueOffset": 0.66,
+   "alpha": 200,
+      "thickAlpha": 160,
+      "enabled": true
+    }
+  ]
+}

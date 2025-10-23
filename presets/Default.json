@@ -1,0 +1,33 @@
+{
+  "name": "Default",
+  "syncMode": true,
+  "visualizerConfig": {
+    "smoothness": 1,
+    "rotationSpeed": 0.25,
+    "waveformHeight": 225,
+    "radiusFactor": 0.6,
+    "thickness": 10,
+    "hueOffset": 0.95,
+    "hue": 0,
+    "hueRotationSpeed": 0.5
+  },
+  "shaderConfig": {
+    "fadeFactor": 0.99,
+    "pixelSize": 25,
+    "blendFactor": 0,
+    "fadeThreshold": 0.01
+  },
+  "waveforms": [
+    {
+      "displayHeight": 30,
+      "smoothness": 5,
+      "rotationSpeed": 1,
+      "radiusFactor": 0.3,
+      "thickness": 5,
+ "hueOffset": 0.5,
+      "alpha": 255,
+      "thickAlpha": 255,
+      "enabled": true
+    }
+  ]
+}

@@ -21,11 +21,18 @@
   <ItemGroup>
     <ClInclude Include="include\AudioCapture.h" />
     <ClInclude Include="include\AudioCaptureRAII.h" />
+    <ClInclude Include="include\AudioFilter.h" />
     <ClInclude Include="include\AudioUtils.h" />
     <ClInclude Include="include\AudioVisualizer.h" />
+    <ClInclude Include="include\ConfigSerializer.h" />
+    <ClInclude Include="include\FileName.h" />
+    <ClInclude Include="include\Pipeline.h" />
     <ClInclude Include="include\ImGuiRAII.h" />
+    <ClInclude Include="include\ShaderConfig.h" />
     <ClInclude Include="include\UIManager.h" />
     <ClInclude Include="include\VisualizerConfig.h" />
+    <ClInclude Include="include\Waveform.h" />
+    <ClInclude Include="include\WaveformConfig.h" />
     <ClInclude Include="include\WaveformDrawer.h" />
   </ItemGroup>
   <ItemGroup>
@@ -33,10 +40,27 @@
     <ClCompile Include="src\AudioThing.cpp" />
     <ClCompile Include="src\AudioUtils.cpp" />
     <ClCompile Include="src\AudioVisualizer.cpp" />
+    <ClCompile Include="src\ConfigSerializer.cpp" />
+    <ClCompile Include="src\Pipeline.cpp" />
+    <ClCompile Include="src\ShaderConfig.cpp" />
     <ClCompile Include="src\UIManager.cpp" />
+    <ClCompile Include="src\VisualizerConfig.cpp" />
+    <ClCompile Include="src\Waveform.cpp" />
+    <ClCompile Include="src\WaveformConfig.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="COLOR_CORRUPTION_FIX.md" />
+    <None Include="COMPLETE_SESSION_SUMMARY.md" />
+    <None Include="CONFIG_ARCHITECTURE.md" />
     <None Include="fade_blur.frag" />
+    <None Include="MIGRATION_GUIDE.md" />
+    <None Include="MULTI_WAVEFORM_GUIDE.md" />
+    <None Include="MULTI_WAVEFORM_QUICKSTART.md" />
+    <None Include="PERFORMANCE_ISSUES.md" />
+    <None Include="presets\Default.json" />
+    <None Include="presets\TripleWave.json" />
+    <None Include="REFACTORING_NOTES.md" />
+    <None Include="REFACTORING_PLAN.md" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
@@ -148,7 +172,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

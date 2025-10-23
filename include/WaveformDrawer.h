@@ -13,6 +13,14 @@
 
 // Function to convert HSV to RGB
 inline sf::Color hsvToRgb(float hue, float saturation, float value) {
+  // Normalize hue to [0, 1] range
+  hue = hue - std::floor(hue);
+  if (hue < 0.0f) hue += 1.0f;
+  
+  // Clamp saturation and value to [0, 1]
+  saturation = std::max(0.0f, std::min(1.0f, saturation));
+  value = std::max(0.0f, std::min(1.0f, value));
+  
   int h = static_cast<int>(hue * 6.0f);
   float f = hue * 6.0f - static_cast<float>(h);
   float p = value * (1.0f - saturation);
@@ -45,7 +53,8 @@ inline sf::Color hsvToRgb(float hue, float saturation, float value) {
                      static_cast<sf::Uint8>(p * 255.0f),
                      static_cast<sf::Uint8>(q * 255.0f));
   default:
-    return sf::Color(255, 255, 255);
+    // This should never happen with proper modulo, but return red as fallback
+    return sf::Color(static_cast<sf::Uint8>(value * 255.0f), 0, 0);
   }
 }
 
@@ -62,14 +71,15 @@ inline double cubicInterpolate(double y0, double y1, double y2, double y3,
 }
 
 // Function to draw the waveform
-// Function to draw the waveform
 inline void drawWaveform(const std::vector<double> &buffer,
                          sf::VertexArray &waveform,
                          sf::VertexArray &thickWaveform, float displayHeight,
                          int smoothness, float rotationAngle,
                          float radiusFactor, float width, float height,
                          float hue, float thickness,
-                         float thickWaveformHueOffset = 0.5f) {
+                         float thickWaveformHueOffset = 0.5f,
+                         sf::Uint8 waveformAlpha = 255,
+                         sf::Uint8 thickWaveformAlpha = 255) {
   if (buffer.empty()) {
     return;
   }
@@ -77,9 +87,16 @@ inline void drawWaveform(const std::vector<double> &buffer,
   // Use static vectors to avoid repeated allocations
   static std::vector<double> extendedBuffer;
   static std::vector<double> smoothedAudioBuffer;
+  static std::vector<float> cosCache;
+  static std::vector<float> sinCache;
 
-  // Resize once instead of reallocating
-  extendedBuffer.resize(buffer.size() * 2);
+  // Reserve capacity to avoid reallocations
+  const size_t requiredSize = buffer.size() * 2;
+  if (extendedBuffer.capacity() < requiredSize) {
+    extendedBuffer.reserve(requiredSize * 1.5); // Reserve extra to reduce future reallocations
+  }
+  
+  extendedBuffer.resize(requiredSize);
   std::copy(buffer.begin(), buffer.end(), extendedBuffer.begin());
   std::copy(buffer.rbegin(), buffer.rend(),
             extendedBuffer.begin() + buffer.size());
@@ -95,52 +112,94 @@ inline void drawWaveform(const std::vector<double> &buffer,
   const int pointMultiplier = 10;
   const size_t numPoints = extendedBuffer.size() * pointMultiplier;
   waveform.resize(numPoints);
-  thickWaveform.clear();
+  
+  // Pre-calculate exact thick waveform vertex count
+  const size_t thicknessSteps = static_cast<size_t>((thickness + 1.0f) / 0.5f);
+  const size_t totalThickVertices = numPoints * thicknessSteps;
+  thickWaveform.resize(totalThickVertices);
 
   float centerX = width / 2.0f;
   float centerY = height / 2.0f;
   float radius = std::min(centerX, centerY) * radiusFactor;
 
-  // Smooth the audio data
-  smoothedAudioBuffer = smoothAudioData(extendedBuffer, smoothness);
+  // Smooth the audio data - reuses existing allocation
+  smoothAudioData(extendedBuffer, smoothedAudioBuffer, smoothness);
 
   // Pre-compute values
   float hueOffset = -rotationAngle / (2.0f * static_cast<float>(M_PI));
-  float thickHue = fmodf(hue + thickWaveformHueOffset, 1.0f);
+  // Normalize thickHue to [0, 1] range
+  float thickHue = hue + thickWaveformHueOffset;
+  thickHue = thickHue - std::floor(thickHue);
+  if (thickHue < 0.0f) thickHue += 1.0f;
 
   // Cache size calculations to avoid repeating them
   const size_t extSize = extendedBuffer.size();
   const size_t smoothSize = smoothedAudioBuffer.size();
 
-  // Draw normal waveform with fewer redundant calculations
+  // Pre-compute sin/cos for all angles to avoid redundant calculations
+  cosCache.resize(numPoints);
+  sinCache.resize(numPoints);
   for (size_t i = 0; i < numPoints; ++i) {
     float angle = static_cast<float>(i) / static_cast<float>(numPoints) * 2.0f *
                       static_cast<float>(M_PI) +
                   rotationAngle;
-    float cosAngle = std::cos(angle); // Calculate once
-    float sinAngle = std::sin(angle); // Calculate once
+    cosCache[i] = std::cos(angle);
+    sinCache[i] = std::sin(angle);
+  }
+
+  // Draw normal waveform using cached trig values
+  for (size_t i = 0; i < numPoints; ++i) {
+    float cosAngle = cosCache[i];
+    float sinAngle = sinCache[i];
 
     size_t index = (i / pointMultiplier) % extSize;
     float fraction = static_cast<float>(i % pointMultiplier) /
                      static_cast<float>(pointMultiplier);
 
-    // Use fewer modulo operations
-    size_t idx0 = (index + extSize - 2) % extSize;
-    size_t idx1 = (index + extSize - 1) % extSize;
-    size_t idx2 = (index + 1) % extSize;
-    size_t idx3 = (index + 2) % extSize;
+    // Optimized wraparound using conditionals instead of modulo
+    size_t idx0, idx1, idx2, idx3;
+    
+    // idx0 = index - 2 with wraparound
+    if (index >= 2) {
+      idx0 = index - 2;
+    } else {
+      idx0 = index + extSize - 2;
+    }
+    
+    // idx1 = index - 1 with wraparound
+    if (index >= 1) {
+      idx1 = index - 1;
+    } else {
+      idx1 = index + extSize - 1;
+    }
+    
+    // idx2 = index + 1 with wraparound
+    idx2 = index + 1;
+    if (idx2 >= extSize) {
+      idx2 -= extSize;
+    }
+    
+    // idx3 = index + 2 with wraparound
+    idx3 = index + 2;
+    if (idx3 >= extSize) {
+      idx3 -= extSize;
+    }
 
     float sampleValue = static_cast<float>(
         cubicInterpolate(extendedBuffer[idx0], extendedBuffer[idx1],
                          extendedBuffer[idx2], extendedBuffer[idx3], fraction));
 
     float r = radius + sampleValue * displayHeight;
-    float x = centerX + r * cosAngle; // Reuse cosAngle
-    float y = centerY + r * sinAngle; // Reuse sinAngle
+    float x = centerX + r * cosAngle;
+    float y = centerY + r * sinAngle;
 
-    sf::Color color = hsvToRgb(
-        hue + hueOffset + static_cast<float>(i) / static_cast<float>(numPoints),
-        1.0f, 0.7f);
+    // Normalize hue value to [0, 1] range
+    float normalizedHue = hue + hueOffset + static_cast<float>(i) / static_cast<float>(numPoints);
+    normalizedHue = normalizedHue - std::floor(normalizedHue);
+    if (normalizedHue < 0.0f) normalizedHue += 1.0f;
+    
+    sf::Color color = hsvToRgb(normalizedHue, 1.0f, 0.7f);
+    color.a = waveformAlpha;
     waveform[i].position = sf::Vector2f(x, y);
     waveform[i].color = color;
   }
@@ -158,22 +217,44 @@ inline void drawWaveform(const std::vector<double> &buffer,
     }
   }
 
-  // Process thick waveform more efficiently
+  // Process thick waveform using cached trig values
+  size_t thickVertexIndex = 0;
   for (size_t i = 0; i < numPoints; ++i) {
-    float angle = static_cast<float>(i) / static_cast<float>(numPoints) * 2.0f *
-                      static_cast<float>(M_PI) +
-                  rotationAngle;
-    float cosAngle = std::cos(angle);
-    float sinAngle = std::sin(angle);
+    float cosAngle = cosCache[i];
+    float sinAngle = sinCache[i];
 
     size_t index = (i / pointMultiplier) % smoothSize;
     float fraction = static_cast<float>(i % pointMultiplier) /
                      static_cast<float>(pointMultiplier);
 
-    size_t idx0 = (index + smoothSize - 2) % smoothSize;
-    size_t idx1 = (index + smoothSize - 1) % smoothSize;
-    size_t idx2 = (index + 1) % smoothSize;
-    size_t idx3 = (index + 2) % smoothSize;
+    // Optimized wraparound using conditionals instead of modulo
+    size_t idx0, idx1, idx2, idx3;
+    
+    // idx0 = index - 2 with wraparound
+    if (index >= 2) {
+      idx0 = index - 2;
+    } else {
+      idx0 = index + smoothSize - 2;
+    }
+    
+    // idx1 = index - 1 with wraparound
+    if (index >= 1) {
+      idx1 = index - 1;
+    } else {
+      idx1 = index + smoothSize - 1;
+    }
+    
+    // idx2 = index + 1 with wraparound
+    idx2 = index + 1;
+    if (idx2 >= smoothSize) {
+      idx2 -= smoothSize;
+    }
+    
+    // idx3 = index + 2 with wraparound
+    idx3 = index + 2;
+    if (idx3 >= smoothSize) {
+      idx3 -= smoothSize;
+    }
 
     float sampleValue = static_cast<float>(cubicInterpolate(
         smoothedAudioBuffer[idx0], smoothedAudioBuffer[idx1],
@@ -181,21 +262,28 @@ inline void drawWaveform(const std::vector<double> &buffer,
 
     float r = radius + sampleValue * displayHeight;
 
-    sf::Color color =
-        hsvToRgb(thickHue + hueOffset +
-                     static_cast<float>(i) / static_cast<float>(numPoints),
-                 1.0f, 1.0f);
-    color.a = 255;
+    // Normalize hue value to [0, 1] range
+    float normalizedThickHue = thickHue + hueOffset + static_cast<float>(i) / static_cast<float>(numPoints);
+    normalizedThickHue = normalizedThickHue - std::floor(normalizedThickHue);
+    if (normalizedThickHue < 0.0f) normalizedThickHue += 1.0f;
 
-    // Batch vertices for thickWaveform to reduce calls to append
+    sf::Color color = hsvToRgb(normalizedThickHue, 1.0f, 1.0f);
+    color.a = thickWaveformAlpha;
+
+    // Use index-based access instead of append - CRITICAL OPTIMIZATION
     for (float offset = -thickness / 2.0f; offset <= thickness / 2.0f;
          offset += 0.5f) {
       float offsetRadius = r + offset;
       sf::Vector2f thickPoint(centerX + offsetRadius * cosAngle,
                               centerY + offsetRadius * sinAngle);
-      thickWaveform.append(sf::Vertex(thickPoint, color));
+      thickWaveform[thickVertexIndex].position = thickPoint;
+      thickWaveform[thickVertexIndex].color = color;
+      ++thickVertexIndex;
     }
   }
+  
+  // Resize to actual vertex count to remove any uninitialized vertices
+  thickWaveform.resize(thickVertexIndex);
 }
 
 #endif // WAVEFORM_DRAWER_H

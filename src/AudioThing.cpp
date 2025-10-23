@@ -2,6 +2,7 @@
 #include "AudioUtils.h"
 #include "AudioVisualizer.h"
 #include "ImGuiRAII.h"
+#include "ShaderConfig.h"
 #include "UIManager.h"
 #include "VisualizerConfig.h"
 #include <atomic>
@@ -76,14 +77,15 @@ void updateAndRender(sf::RenderWindow &window, AudioVisualizer &visualizer,
 }
 
 // Update and render UI
-void updateUI(UIManager &uiManager, ImGuiRAII &imguiManager, float deltaTime) {
+void updateUI(UIManager &uiManager, ImGuiRAII &imguiManager, float deltaTime,
+              AudioVisualizer *visualizer = nullptr) {
   // Update ImGui
   imguiManager.update(deltaTime);
 
   // Draw UI with performance metrics
   float fps = 1.0f / deltaTime;
   float frameTime = deltaTime * 1000.0f;
-  uiManager.drawUI(fps, frameTime);
+  uiManager.drawUI(fps, frameTime, visualizer);
 
   // Render ImGui
   imguiManager.render();
@@ -91,7 +93,7 @@ void updateUI(UIManager &uiManager, ImGuiRAII &imguiManager, float deltaTime) {
 
 int main() {
   try {
-    constexpr int BUFFER_SIZE = 512;
+    constexpr int BUFFER_SIZE = 1024;
 
     // Resources managed with RAII patterns
     std::vector<double> audioBuffer(BUFFER_SIZE);
@@ -109,15 +111,16 @@ int main() {
     window.setFramerateLimit(60);
     window.setVerticalSyncEnabled(true);
 
-    // Create configuration and visualizer objects
+    // Create configuration objects
     VisualizerConfig config;
-    AudioVisualizer visualizer(config);
+    ShaderConfig shaderConfig;
+    AudioVisualizer visualizer(config, shaderConfig);
     if (!visualizer.initialize(1920, 1080)) {
       throw std::runtime_error("Failed to initialize visualizer");
     }
 
     // Create UI manager
-    UIManager uiManager(config);
+    UIManager uiManager(config, shaderConfig);
 
     // Initialize ImGui with RAII
     ImGuiRAII imguiManager(window);
@@ -157,7 +160,7 @@ int main() {
       visualizer.render(window);
 
       // Update and render UI
-      updateUI(uiManager, imguiManager, deltaTime);
+      updateUI(uiManager, imguiManager, deltaTime, &visualizer);
 
       // Display the frame
       window.display();

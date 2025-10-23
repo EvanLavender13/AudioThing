@@ -39,6 +39,27 @@
     <ClInclude Include="include\ImGuiRAII.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\WaveformConfig.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Waveform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\AudioFilter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Pipeline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\FileName.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ShaderConfig.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ConfigSerializer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\AudioThing.cpp">
@@ -56,10 +77,39 @@
     <ClCompile Include="src\UIManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Waveform.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Pipeline.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ConfigSerializer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VisualizerConfig.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ShaderConfig.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\WaveformConfig.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="fade_blur.frag">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="PERFORMANCE_ISSUES.md" />
+    <None Include="REFACTORING_PLAN.md" />
+    <None Include="REFACTORING_NOTES.md" />
+    <None Include="CONFIG_ARCHITECTURE.md" />
+    <None Include="MULTI_WAVEFORM_GUIDE.md" />
+    <None Include="MULTI_WAVEFORM_QUICKSTART.md" />
+    <None Include="COLOR_CORRUPTION_FIX.md" />
+    <None Include="COMPLETE_SESSION_SUMMARY.md" />
+    <None Include="presets\Default.json" />
+    <None Include="presets\TripleWave.json" />
+    <None Include="MIGRATION_GUIDE.md" />
   </ItemGroup>
 </Project>
