@@ -111,5 +111,6 @@
     <None Include="presets\Default.json" />
     <None Include="presets\TripleWave.json" />
     <None Include="MIGRATION_GUIDE.md" />
+    <None Include="VERTICAL_LINE_ARTIFACTS_FIX.md" />
   </ItemGroup>
 </Project>

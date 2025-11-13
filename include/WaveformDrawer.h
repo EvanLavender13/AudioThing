@@ -15,12 +15,13 @@
 inline sf::Color hsvToRgb(float hue, float saturation, float value) {
   // Normalize hue to [0, 1] range
   hue = hue - std::floor(hue);
-  if (hue < 0.0f) hue += 1.0f;
-  
+  if (hue < 0.0f)
+    hue += 1.0f;
+
   // Clamp saturation and value to [0, 1]
   saturation = std::max(0.0f, std::min(1.0f, saturation));
   value = std::max(0.0f, std::min(1.0f, value));
-  
+
   int h = static_cast<int>(hue * 6.0f);
   float f = hue * 6.0f - static_cast<float>(h);
   float p = value * (1.0f - saturation);
@@ -71,15 +72,13 @@ inline double cubicInterpolate(double y0, double y1, double y2, double y3,
 }
 
 // Function to draw the waveform
-inline void drawWaveform(const std::vector<double> &buffer,
-                         sf::VertexArray &waveform,
-                         sf::VertexArray &thickWaveform, float displayHeight,
-                         int smoothness, float rotationAngle,
-                         float radiusFactor, float width, float height,
-                         float hue, float thickness,
-                         float thickWaveformHueOffset = 0.5f,
-                         sf::Uint8 waveformAlpha = 255,
-                         sf::Uint8 thickWaveformAlpha = 255) {
+inline void
+drawWaveform(const std::vector<double> &buffer, sf::VertexArray &waveform,
+             sf::VertexArray &thickWaveform, float displayHeight,
+             int smoothness, float rotationAngle, float radiusFactor,
+             float width, float height, float hue, float thickness,
+             float thickWaveformHueOffset = 0.5f, sf::Uint8 waveformAlpha = 255,
+             sf::Uint8 thickWaveformAlpha = 255) {
   if (buffer.empty()) {
     return;
   }
@@ -93,9 +92,10 @@ inline void drawWaveform(const std::vector<double> &buffer,
   // Reserve capacity to avoid reallocations
   const size_t requiredSize = buffer.size() * 2;
   if (extendedBuffer.capacity() < requiredSize) {
-    extendedBuffer.reserve(requiredSize * 1.5); // Reserve extra to reduce future reallocations
+    extendedBuffer.reserve(requiredSize *
+                           1.5); // Reserve extra to reduce future reallocations
   }
-  
+
   extendedBuffer.resize(requiredSize);
   std::copy(buffer.begin(), buffer.end(), extendedBuffer.begin());
   std::copy(buffer.rbegin(), buffer.rend(),
@@ -112,7 +112,7 @@ inline void drawWaveform(const std::vector<double> &buffer,
   const int pointMultiplier = 10;
   const size_t numPoints = extendedBuffer.size() * pointMultiplier;
   waveform.resize(numPoints);
-  
+
   // Pre-calculate exact thick waveform vertex count
   const size_t thicknessSteps = static_cast<size_t>((thickness + 1.0f) / 0.5f);
   const size_t totalThickVertices = numPoints * thicknessSteps;
@@ -130,7 +130,8 @@ inline void drawWaveform(const std::vector<double> &buffer,
   // Normalize thickHue to [0, 1] range
   float thickHue = hue + thickWaveformHueOffset;
   thickHue = thickHue - std::floor(thickHue);
-  if (thickHue < 0.0f) thickHue += 1.0f;
+  if (thickHue < 0.0f)
+    thickHue += 1.0f;
 
   // Cache size calculations to avoid repeating them
   const size_t extSize = extendedBuffer.size();
@@ -158,27 +159,27 @@ inline void drawWaveform(const std::vector<double> &buffer,
 
     // Optimized wraparound using conditionals instead of modulo
     size_t idx0, idx1, idx2, idx3;
-    
+
     // idx0 = index - 2 with wraparound
     if (index >= 2) {
       idx0 = index - 2;
     } else {
       idx0 = index + extSize - 2;
     }
-    
+
     // idx1 = index - 1 with wraparound
     if (index >= 1) {
       idx1 = index - 1;
     } else {
       idx1 = index + extSize - 1;
     }
-    
+
     // idx2 = index + 1 with wraparound
     idx2 = index + 1;
     if (idx2 >= extSize) {
       idx2 -= extSize;
     }
-    
+
     // idx3 = index + 2 with wraparound
     idx3 = index + 2;
     if (idx3 >= extSize) {
@@ -194,10 +195,12 @@ inline void drawWaveform(const std::vector<double> &buffer,
     float y = centerY + r * sinAngle;
 
     // Normalize hue value to [0, 1] range
-    float normalizedHue = hue + hueOffset + static_cast<float>(i) / static_cast<float>(numPoints);
+    float normalizedHue =
+        hue + hueOffset + static_cast<float>(i) / static_cast<float>(numPoints);
     normalizedHue = normalizedHue - std::floor(normalizedHue);
-    if (normalizedHue < 0.0f) normalizedHue += 1.0f;
-    
+    if (normalizedHue < 0.0f)
+      normalizedHue += 1.0f;
+
     sf::Color color = hsvToRgb(normalizedHue, 1.0f, 0.7f);
     color.a = waveformAlpha;
     waveform[i].position = sf::Vector2f(x, y);
@@ -229,27 +232,27 @@ inline void drawWaveform(const std::vector<double> &buffer,
 
     // Optimized wraparound using conditionals instead of modulo
     size_t idx0, idx1, idx2, idx3;
-    
+
     // idx0 = index - 2 with wraparound
     if (index >= 2) {
       idx0 = index - 2;
     } else {
       idx0 = index + smoothSize - 2;
     }
-    
+
     // idx1 = index - 1 with wraparound
     if (index >= 1) {
       idx1 = index - 1;
     } else {
       idx1 = index + smoothSize - 1;
     }
-    
+
     // idx2 = index + 1 with wraparound
     idx2 = index + 1;
     if (idx2 >= smoothSize) {
       idx2 -= smoothSize;
     }
-    
+
     // idx3 = index + 2 with wraparound
     idx3 = index + 2;
     if (idx3 >= smoothSize) {
@@ -263,9 +266,12 @@ inline void drawWaveform(const std::vector<double> &buffer,
     float r = radius + sampleValue * displayHeight;
 
     // Normalize hue value to [0, 1] range
-    float normalizedThickHue = thickHue + hueOffset + static_cast<float>(i) / static_cast<float>(numPoints);
+    float normalizedThickHue =
+        thickHue + hueOffset +
+        static_cast<float>(i) / static_cast<float>(numPoints);
     normalizedThickHue = normalizedThickHue - std::floor(normalizedThickHue);
-    if (normalizedThickHue < 0.0f) normalizedThickHue += 1.0f;
+    if (normalizedThickHue < 0.0f)
+      normalizedThickHue += 1.0f;
 
     sf::Color color = hsvToRgb(normalizedThickHue, 1.0f, 1.0f);
     color.a = thickWaveformAlpha;
@@ -281,7 +287,7 @@ inline void drawWaveform(const std::vector<double> &buffer,
       ++thickVertexIndex;
     }
   }
-  
+
   // Resize to actual vertex count to remove any uninitialized vertices
   thickWaveform.resize(thickVertexIndex);
 }

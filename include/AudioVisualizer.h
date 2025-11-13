@@ -24,10 +24,6 @@ public:
   void removeWaveform(size_t index);
   size_t getWaveformCount() const { return waveforms.size(); }
   Waveform* getWaveform(size_t index) { return index < waveforms.size() ? waveforms[index] : nullptr; }
-  
-  // Sync mode control
-  void setSyncMode(bool sync) { syncAllWaveforms = sync; }
-  bool getSyncMode() const { return syncAllWaveforms; }
 
 private:
   VisualizerConfig &config; // Non-const reference to configuration
@@ -41,10 +37,6 @@ private:
   std::vector<Waveform*> waveforms;
 
   float rotationAngle; // Current rotation angle for global hue
-  bool syncAllWaveforms = true; // If true, all waveforms sync with VisualizerConfig
-  
-  // Helper method to sync waveform configs from visualizer config
-  void syncWaveformConfigs();
 };
 
 #endif // AUDIO_VISUALIZER_H

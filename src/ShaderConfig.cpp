@@ -21,7 +21,7 @@ static std::string extractValue(const std::string& content, const std::string& k
 }
 
 void ShaderConfig::fromJSON(const std::string& json) {
- std::string val;
+    std::string val;
     
     val = extractValue(json, "fadeFactor");
     if (!val.empty()) fadeFactor = std::stof(val);
@@ -31,7 +31,14 @@ void ShaderConfig::fromJSON(const std::string& json) {
     
     val = extractValue(json, "blendFactor");
     if (!val.empty()) blendFactor = std::stof(val);
- 
+    
     val = extractValue(json, "fadeThreshold");
     if (!val.empty()) fadeThreshold = std::stof(val);
+    
+    // Enhancement effect parameters
+    val = extractValue(json, "saturationBoost");
+    if (!val.empty()) saturationBoost = std::stof(val);
+    
+    val = extractValue(json, "ditherStrength");
+    if (!val.empty()) ditherStrength = std::stof(val);
 }

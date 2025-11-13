@@ -108,7 +108,7 @@ bool AudioCapture::captureAudio(std::vector<double> &audioBuffer) {
   hr = pCaptureClient->GetNextPacketSize(&packetLength);
   if (FAILED(hr)) {
     std::cerr << "Failed to get next packet size. Error: " << std::hex << hr
-              << std::endl;
+ << std::endl;
     return false;
   }
 
@@ -118,10 +118,10 @@ bool AudioCapture::captureAudio(std::vector<double> &audioBuffer) {
     DWORD flags = 0;
 
     hr = pCaptureClient->GetBuffer(&pData, &numFramesAvailable, &flags, nullptr,
-                                   nullptr);
+ nullptr);
     if (FAILED(hr)) {
       std::cerr << "Failed to get buffer. Error: " << std::hex << hr
-                << std::endl;
+           << std::endl;
       return false;
     }
 
@@ -132,26 +132,26 @@ bool AudioCapture::captureAudio(std::vector<double> &audioBuffer) {
 
     if (flags & AUDCLNT_BUFFERFLAGS_SILENT) {
       std::fill(audioBuffer.begin(), audioBuffer.begin() + numFramesAvailable,
-                0.0);
+     0.0);
       // Optionally log silence only in debug mode
     } else {
-      const float *floatData = reinterpret_cast<const float *>(pData);
+ const float *floatData = reinterpret_cast<const float *>(pData);
       for (UINT32 i = 0; i < numFramesAvailable; ++i) {
         audioBuffer[i] = static_cast<double>(floatData[i]);
       }
     }
 
-    hr = pCaptureClient->ReleaseBuffer(numFramesAvailable);
-    if (FAILED(hr)) {
+  hr = pCaptureClient->ReleaseBuffer(numFramesAvailable);
+ if (FAILED(hr)) {
       std::cerr << "Failed to release buffer. Error: " << std::hex << hr
-                << std::endl;
-      return false;
+          << std::endl;
+  return false;
     }
 
     hr = pCaptureClient->GetNextPacketSize(&packetLength);
     if (FAILED(hr)) {
       std::cerr << "Failed to get next packet size. Error: " << std::hex << hr
-                << std::endl;
+     << std::endl;
       return false;
     }
   }

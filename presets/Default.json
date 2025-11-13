@@ -1,31 +1,54 @@
 {
   "name": "Default",
-  "syncMode": true,
-  "visualizerConfig": {
+  "visualizerConfig":   {
     "smoothness": 1,
     "rotationSpeed": 0.25,
     "waveformHeight": 225,
     "radiusFactor": 0.6,
     "thickness": 10,
     "hueOffset": 0.95,
-    "hue": 0,
+    "hue": -4.42717,
     "hueRotationSpeed": 0.5
   },
-  "shaderConfig": {
+  "shaderConfig":   {
     "fadeFactor": 0.99,
     "pixelSize": 25,
     "blendFactor": 0,
-    "fadeThreshold": 0.01
+    "fadeThreshold": 0.01,
+    "saturationBoost": 1.15,
+    "ditherStrength": 0.01
   },
   "waveforms": [
     {
-      "displayHeight": 30,
-      "smoothness": 5,
-      "rotationSpeed": 1,
-      "radiusFactor": 0.3,
-      "thickness": 5,
- "hueOffset": 0.5,
-      "alpha": 255,
+      "displayHeight": 10,
+      "smoothness": 50,
+      "rotationSpeed": 0,
+      "radiusFactor": 0.031,
+      "thickness": 1,
+      "hueOffset": 0,
+      "alpha": 0,
+      "thickAlpha": 255,
+      "enabled": true
+    },
+    {
+      "displayHeight": 10,
+      "smoothness": 50,
+      "rotationSpeed": 0,
+      "radiusFactor": 0.052,
+      "thickness": 1,
+      "hueOffset": 0,
+      "alpha": 0,
+      "thickAlpha": 255,
+      "enabled": true
+    },
+    {
+      "displayHeight": 10,
+      "smoothness": 50,
+      "rotationSpeed": 0,
+      "radiusFactor": 0.073,
+      "thickness": 1,
+      "hueOffset": 0,
+      "alpha": 0,
       "thickAlpha": 255,
       "enabled": true
     }

@@ -1,6 +1,5 @@
 {
   "name": "MyPreset",
-  "syncMode": false,
   "visualizerConfig":   {
     "smoothness": 1,
     "rotationSpeed": 0.25,
@@ -8,58 +7,60 @@
     "radiusFactor": 0.6,
     "thickness": 10,
     "hueOffset": 0.95,
-    "hue": -32.7404,
+    "hue": -106.123,
     "hueRotationSpeed": 0.5
   },
   "shaderConfig":   {
     "fadeFactor": 0.99,
     "pixelSize": 25,
     "blendFactor": 0,
-    "fadeThreshold": 0.01
+    "fadeThreshold": 0,
+    "saturationBoost": 2,
+    "ditherStrength": 0
   },
   "waveforms": [
     {
       "displayHeight": 300,
-      "smoothness": 50,
-      "rotationSpeed": -0.239,
+      "smoothness": 25,
+      "rotationSpeed": -0.5,
       "radiusFactor": 1.644,
       "thickness": 30,
-      "hueOffset": 0.95,
+      "hueOffset": 0.19,
       "alpha": 0,
-      "thickAlpha": 25,
+      "thickAlpha": 40,
       "enabled": true
     },
     {
-      "displayHeight": 121.704,
-      "smoothness": 11,
-      "rotationSpeed": -0.267,
-      "radiusFactor": 1.355,
-      "thickness": 12.6,
-      "hueOffset": 0.95,
-      "alpha": 126,
-      "thickAlpha": 121,
-      "enabled": false
-    },
-    {
-      "displayHeight": 244.333,
-      "smoothness": 5,
+      "displayHeight": 250.881,
+      "smoothness": 1,
       "rotationSpeed": 0.25,
-      "radiusFactor": 0.851,
-      "thickness": 10,
-      "hueOffset": 0.95,
+      "radiusFactor": 0.881,
+      "thickness": 10.062,
+      "hueOffset": 0.9,
       "alpha": 255,
       "thickAlpha": 255,
       "enabled": true
     },
     {
-      "displayHeight": 136.925,
+      "displayHeight": 50.834,
+      "smoothness": 25,
+      "rotationSpeed": -0.75,
+      "radiusFactor": 0.385,
+      "thickness": 5.078,
+      "hueOffset": 0.094,
+      "alpha": 138,
+      "thickAlpha": 11,
+      "enabled": false
+    },
+    {
+      "displayHeight": 124.844,
       "smoothness": 1,
-      "rotationSpeed": -0.224,
-      "radiusFactor": 0.289,
+      "rotationSpeed": -1,
+      "radiusFactor": 0.302,
       "thickness": 1,
-      "hueOffset": 0.95,
-      "alpha": 0,
-      "thickAlpha": 255,
+      "hueOffset": 0.919,
+      "alpha": 128,
+      "thickAlpha": 128,
       "enabled": true
     }
   ]

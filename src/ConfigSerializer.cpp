@@ -12,7 +12,6 @@ std::string VisualizerPreset::toJSON() const {
     std::ostringstream oss;
     oss << "{\n";
     oss << "  \"name\": \"" << name << "\",\n";
-    oss << "  \"syncMode\": " << (syncMode ? "true" : "false") << ",\n";
     oss << "  \"visualizerConfig\": " << visualizerConfig.toJSON(2) << ",\n";
     oss << "  \"shaderConfig\": " << shaderConfig.toJSON(2) << ",\n";
     oss << "  \"waveforms\": [\n";
@@ -33,10 +32,6 @@ std::string VisualizerPreset::toJSON() const {
 void VisualizerPreset::fromJSON(const std::string& json) {
     // Parse name
     name = ConfigSerializer::extractValue(json, "name");
-    
-    // Parse sync mode
-    std::string syncModeStr = ConfigSerializer::extractValue(json, "syncMode");
-    syncMode = (syncModeStr == "true");
     
     // Parse visualizer config
     std::string vizConfigJson = ConfigSerializer::extractSection(json, "visualizerConfig");

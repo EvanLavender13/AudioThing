@@ -61,6 +61,7 @@
     <None Include="presets\TripleWave.json" />
     <None Include="REFACTORING_NOTES.md" />
     <None Include="REFACTORING_PLAN.md" />
+    <None Include="VERTICAL_LINE_ARTIFACTS_FIX.md" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

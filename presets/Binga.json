@@ -1,0 +1,56 @@
+{
+  "name": "Binga",
+  "visualizerConfig":   {
+    "smoothness": 1,
+    "rotationSpeed": 0.25,
+    "waveformHeight": 225,
+    "radiusFactor": 0.6,
+    "thickness": 10,
+    "hueOffset": 0.95,
+    "hue": -7.12345,
+    "hueRotationSpeed": 0.5
+  },
+  "shaderConfig":   {
+    "fadeFactor": 0.99,
+    "pixelSize": 25,
+    "blendFactor": 0.1,
+    "fadeThreshold": 0.01,
+    "saturationBoost": 2,
+    "ditherStrength": 0.05
+  },
+  "waveforms": [
+    {
+      "displayHeight": 225,
+      "smoothness": 1,
+      "rotationSpeed": 0.25,
+      "radiusFactor": 0.6,
+      "thickness": 10,
+      "hueOffset": 0.95,
+      "alpha": 255,
+      "thickAlpha": 255,
+      "enabled": true
+    },
+    {
+      "displayHeight": 252.448,
+      "smoothness": 50,
+      "rotationSpeed": -0.5,
+      "radiusFactor": 1.291,
+      "thickness": 1,
+      "hueOffset": 0.506,
+      "alpha": 114,
+      "thickAlpha": 0,
+      "enabled": true
+    },
+    {
+      "displayHeight": 500,
+      "smoothness": 50,
+      "rotationSpeed": 0.25,
+      "radiusFactor": 2,
+      "thickness": 30,
+      "hueOffset": 0.95,
+      "alpha": 0,
+      "thickAlpha": 255,
+      "enabled": true
+    }
+  ]
+}

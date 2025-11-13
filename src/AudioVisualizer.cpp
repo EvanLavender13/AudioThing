@@ -50,6 +50,12 @@ bool AudioVisualizer::initialize(unsigned int width, unsigned int height) {
                                                static_cast<float>(height)));
   shader.setUniform("blendFactor", shaderConfig.blendFactor);
   shader.setUniform("pixelSize", static_cast<float>(shaderConfig.pixelSize));
+  shader.setUniform("fadeThreshold", shaderConfig.fadeThreshold);
+  
+  // Initialize enhancement effect uniforms
+  shader.setUniform("saturationBoost", shaderConfig.saturationBoost);
+  shader.setUniform("ditherStrength", shaderConfig.ditherStrength);
+  shader.setUniform("time", 0.0f);
 
   return true;
 }
@@ -73,11 +79,6 @@ void AudioVisualizer::update(const std::vector<double> &audioBuffer,
   config.hue = static_cast<float>(-rotationAngle * config.hueRotationSpeed /
             (2.0 * M_PI));
 
-  // Synchronize waveform configs with visualizer config (if sync mode enabled)
-  if (syncAllWaveforms) {
-    syncWaveformConfigs();
-  }
-
   // Update all waveforms
   float width = static_cast<float>(renderTexture.getSize().x);
   float height = static_cast<float>(renderTexture.getSize().y);
@@ -91,19 +92,15 @@ void AudioVisualizer::update(const std::vector<double> &audioBuffer,
   shader.setUniform("pixelSize", static_cast<float>(shaderConfig.pixelSize));
   shader.setUniform("blendFactor", shaderConfig.blendFactor);
   shader.setUniform("fadeThreshold", shaderConfig.fadeThreshold);
-}
-
-void AudioVisualizer::syncWaveformConfigs() {
-  // Update all waveforms with current visualizer config settings
-  for (size_t i = 0; i < waveforms.size(); ++i) {
-    WaveformConfig &waveConfig = waveforms[i]->getConfig();
-    waveConfig.displayHeight = config.waveformHeight;
-    waveConfig.smoothness = config.smoothness;
-    waveConfig.rotationSpeed = config.rotationSpeed;
-    waveConfig.radiusFactor = config.radiusFactor;
-    waveConfig.thickness = static_cast<float>(config.thickness);
-    waveConfig.hueOffset = config.hueOffset;
-  }
+  
+  // Update enhancement effect uniforms
+  shader.setUniform("saturationBoost", shaderConfig.saturationBoost);
+  shader.setUniform("ditherStrength", shaderConfig.ditherStrength);
+  
+  // Update time for temporal dithering
+  static float timeAccumulator = 0.0f;
+  timeAccumulator += deltaTime;
+  shader.setUniform("time", timeAccumulator);
 }
 
 void AudioVisualizer::addWaveform(const WaveformConfig &config) {

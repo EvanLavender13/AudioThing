@@ -16,7 +16,6 @@ struct VisualizerPreset {
     VisualizerConfig visualizerConfig;
     ShaderConfig shaderConfig;
     std::vector<WaveformConfig> waveforms;
-    bool syncMode;
     
     // Serialization methods
     std::string toJSON() const;

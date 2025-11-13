@@ -11,31 +11,53 @@ UIManager::~UIManager() {}
 
 void UIManager::drawUI(float fps, float frameTime,
                        AudioVisualizer *visualizer) {
-  drawGlobalSettings(fps, frameTime);
+  // Create a single main debug window
+  ImGui::Begin("Audio Visualizer Debug", nullptr,
+               ImGuiWindowFlags_AlwaysAutoResize);
 
-  if (visualizer) {
-    drawWaveformList(visualizer);
-    drawWaveformSettings(visualizer);
-    drawPresetManager(visualizer);
+  // Performance metrics section
+  if (ImGui::CollapsingHeader("Performance", ImGuiTreeNodeFlags_DefaultOpen)) {
+    drawPerformanceSection(fps, frameTime);
   }
+
+  ImGui::Separator();
+
+  // Shader effects section
+  if (ImGui::CollapsingHeader("Shader Effects",
+                              ImGuiTreeNodeFlags_DefaultOpen)) {
+    drawShaderEffectsSection();
+  }
+
+  ImGui::Separator();
+
+  // Waveform management sections (only if visualizer exists)
+  if (visualizer) {
+    if (ImGui::CollapsingHeader("Waveforms", ImGuiTreeNodeFlags_DefaultOpen)) {
+      drawWaveformListSection(visualizer);
+    }
+
+    ImGui::Separator();
+
+    if (ImGui::CollapsingHeader("Waveform Settings")) {
+      drawWaveformSettingsSection(visualizer);
+    }
+
+    ImGui::Separator();
+
+    if (ImGui::CollapsingHeader("Preset Manager")) {
+      drawPresetManagerSection(visualizer);
+    }
+  }
+
+  ImGui::End();
 }
 
-void UIManager::drawGlobalSettings(float fps, float frameTime) {
-  ImGui::Begin("Global Settings");
-
+void UIManager::drawPerformanceSection(float fps, float frameTime) {
   ImGui::Text("FPS: %.1f", fps);
   ImGui::Text("Frame Time: %.2f ms", frameTime);
+}
 
-  ImGui::Separator();
-  ImGui::Text("Global Waveform Settings");
-  ImGui::SliderInt("Smoothness", &config.smoothness, 1, 50);
-  ImGui::SliderFloat("Height", &config.waveformHeight, 50.0f, 300.0f);
-  ImGui::SliderFloat("Rotation", &config.rotationSpeed, 0.01f, 1.0f);
-  ImGui::SliderFloat("Radius", &config.radiusFactor, 0.1f, 1.0f);
-  ImGui::SliderInt("Thickness", &config.thickness, 1, 20);
-  ImGui::SliderFloat("Contrast", &config.hueOffset, 0.0f, 1.0f);
-
-  ImGui::Separator();
+void UIManager::drawShaderEffectsSection() {
   ImGui::Text("Shader Effects");
   ImGui::SliderFloat("Fade", &shaderConfig.fadeFactor, 0.0f, 1.0f);
   ImGui::SliderInt("Pixel Size", &shaderConfig.pixelSize, 1, 100);
@@ -44,19 +66,27 @@ void UIManager::drawGlobalSettings(float fps, float frameTime) {
   ImGui::SliderFloat("Fade Threshold", &shaderConfig.fadeThreshold, 0.0f, 0.1f,
                      "%.3f");
 
-  ImGui::End();
-}
+  ImGui::Spacing();
+  ImGui::Text("Enhancement Effects");
 
-void UIManager::drawWaveformList(AudioVisualizer *visualizer) {
-  ImGui::Begin("Waveforms");
-
-  bool syncMode = visualizer->getSyncMode();
-  if (ImGui::Checkbox("Sync All Waveforms", &syncMode)) {
-    visualizer->setSyncMode(syncMode);
+  // Saturation boost
+  ImGui::SliderFloat("Saturation Boost", &shaderConfig.saturationBoost, 1.0f,
+                     2.0f, "%.2f");
+  if (ImGui::IsItemHovered()) {
+    ImGui::SetTooltip("Keeps trail colors vivid as they fade (1.0 = normal "
+                      "fade, 1.5+ = very saturated)");
   }
 
-  ImGui::Separator();
+  // Dither strength
+  ImGui::SliderFloat("Dither Strength", &shaderConfig.ditherStrength, 0.0f,
+                     0.05f, "%.3f");
+  if (ImGui::IsItemHovered()) {
+    ImGui::SetTooltip(
+        "Adds film grain texture (0.01 = subtle, 0.02+ = visible noise)");
+  }
+}
 
+void UIManager::drawWaveformListSection(AudioVisualizer *visualizer) {
   size_t waveformCount = visualizer->getWaveformCount();
   ImGui::Text("Waveforms: %zu", waveformCount);
 
@@ -85,7 +115,7 @@ void UIManager::drawWaveformList(AudioVisualizer *visualizer) {
     }
   }
 
-  ImGui::Separator();
+  ImGui::Spacing();
 
   // List of waveforms
   for (size_t i = 0; i < waveformCount; ++i) {
@@ -103,12 +133,12 @@ void UIManager::drawWaveformList(AudioVisualizer *visualizer) {
       selectedWaveformIndex = static_cast<int>(i);
     }
   }
-
-  ImGui::End();
 }
 
-void UIManager::drawWaveformSettings(AudioVisualizer *visualizer) {
+void UIManager::drawWaveformSettingsSection(AudioVisualizer *visualizer) {
   if (visualizer->getWaveformCount() == 0) {
+    ImGui::TextColored(ImVec4(0.7f, 0.7f, 0.7f, 1.0f),
+                       "No waveforms available");
     return;
   }
 
@@ -117,82 +147,57 @@ void UIManager::drawWaveformSettings(AudioVisualizer *visualizer) {
     return;
   }
 
-  ImGui::Begin("Waveform Settings");
-
   ImGui::Text("Editing Waveform %d", selectedWaveformIndex);
-
-  if (visualizer->getSyncMode()) {
-    ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f),
-                       "Sync Mode: Settings synced with Global");
-    ImGui::Text("Disable 'Sync All Waveforms' to edit individually");
-  } else {
-    ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f),
-                       "Independent Mode: Edit this waveform");
-  }
-
-  ImGui::Separator();
+  ImGui::Spacing();
 
   WaveformConfig &waveConfig = waveform->getConfig();
 
   ImGui::Checkbox("Enabled", &waveConfig.enabled);
 
-  // Only allow editing if sync mode is off
-  if (!visualizer->getSyncMode()) {
-    float displayHeight = waveConfig.displayHeight;
-    if (ImGui::SliderFloat("Height", &displayHeight, 10.0f, 300.0f)) {
-      waveConfig.displayHeight = displayHeight;
-    }
-
-    if (ImGui::SliderInt("Smoothness", &waveConfig.smoothness, 1, 50)) {
-      // Updated
-    }
-
-    float rotationSpeed = waveConfig.rotationSpeed;
-    if (ImGui::SliderFloat("Rotation Speed", &rotationSpeed, -2.0f, 2.0f)) {
-      waveConfig.rotationSpeed = rotationSpeed;
-    }
-
-    float radiusFactor = waveConfig.radiusFactor;
-    if (ImGui::SliderFloat("Radius", &radiusFactor, 0.0f, 2.0f)) {
-      waveConfig.radiusFactor = radiusFactor;
-    }
-
-    float thickness = waveConfig.thickness;
-    if (ImGui::SliderFloat("Thickness", &thickness, 1.0f, 30.0f)) {
-      waveConfig.thickness = thickness;
-    }
-
-    float hueOffset = waveConfig.hueOffset;
-    if (ImGui::SliderFloat("Hue Offset", &hueOffset, 0.0f, 1.0f)) {
-      waveConfig.hueOffset = hueOffset;
-    }
-
-    int alpha = waveConfig.alpha;
-    if (ImGui::SliderInt("Alpha", &alpha, 0, 255)) {
-      waveConfig.alpha = static_cast<sf::Uint8>(alpha);
-    }
-
-    int thickAlpha = waveConfig.thickAlpha;
-    if (ImGui::SliderInt("Thick Alpha", &thickAlpha, 0, 255)) {
-      waveConfig.thickAlpha = static_cast<sf::Uint8>(thickAlpha);
-    }
-  } else {
-    ImGui::Text("Height: %.1f (synced)", waveConfig.displayHeight);
-    ImGui::Text("Smoothness: %d (synced)", waveConfig.smoothness);
-    ImGui::Text("Rotation Speed: %.2f (synced)", waveConfig.rotationSpeed);
-    ImGui::Text("Radius: %.2f (synced)", waveConfig.radiusFactor);
-    ImGui::Text("Thickness: %.1f (synced)", waveConfig.thickness);
-    ImGui::Text("Hue Offset: %.2f (synced)", waveConfig.hueOffset);
+  // All settings are now always editable
+  float displayHeight = waveConfig.displayHeight;
+  if (ImGui::SliderFloat("Height", &displayHeight, 10.0f, 500.0f)) {
+    waveConfig.displayHeight = displayHeight;
   }
 
-  ImGui::End();
+  if (ImGui::SliderInt("Smoothness", &waveConfig.smoothness, 1, 50)) {
+    // Updated
+  }
+
+  float rotationSpeed = waveConfig.rotationSpeed;
+  if (ImGui::SliderFloat("Rotation Speed", &rotationSpeed, -2.0f, 2.0f)) {
+    waveConfig.rotationSpeed = rotationSpeed;
+  }
+
+  float radiusFactor = waveConfig.radiusFactor;
+  if (ImGui::SliderFloat("Radius", &radiusFactor, 0.0f, 2.0f)) {
+    waveConfig.radiusFactor = radiusFactor;
+  }
+
+  float thickness = waveConfig.thickness;
+  if (ImGui::SliderFloat("Thickness", &thickness, 1.0f, 30.0f)) {
+    waveConfig.thickness = thickness;
+  }
+
+  float hueOffset = waveConfig.hueOffset;
+  if (ImGui::SliderFloat("Hue Offset", &hueOffset, 0.0f, 1.0f)) {
+    waveConfig.hueOffset = hueOffset;
+  }
+
+  int alpha = waveConfig.alpha;
+  if (ImGui::SliderInt("Alpha", &alpha, 0, 255)) {
+    waveConfig.alpha = static_cast<sf::Uint8>(alpha);
+  }
+
+  int thickAlpha = waveConfig.thickAlpha;
+  if (ImGui::SliderInt("Thick Alpha", &thickAlpha, 0, 255)) {
+    waveConfig.thickAlpha = static_cast<sf::Uint8>(thickAlpha);
+  }
 }
 
-void UIManager::drawPresetManager(AudioVisualizer *visualizer) {
-  ImGui::Begin("Preset Manager");
-
+void UIManager::drawPresetManagerSection(AudioVisualizer *visualizer) {
   ImGui::Text("Save/Load Configurations");
-  ImGui::Separator();
+  ImGui::Spacing();
 
   // Save section
   ImGui::Text("Preset Name:");
@@ -206,7 +211,9 @@ void UIManager::drawPresetManager(AudioVisualizer *visualizer) {
     }
   }
 
+  ImGui::Spacing();
   ImGui::Separator();
+  ImGui::Spacing();
 
   // Load section
   ImGui::Text("Available Presets:");
@@ -239,11 +246,9 @@ void UIManager::drawPresetManager(AudioVisualizer *visualizer) {
     }
   }
 
-  ImGui::Separator();
+  ImGui::Spacing();
   ImGui::TextColored(ImVec4(0.5f, 0.5f, 0.5f, 1.0f),
                      "Tip: Double-click to load");
-
-  ImGui::End();
 }
 
 void UIManager::refreshPresetList() {
@@ -256,7 +261,6 @@ void UIManager::saveCurrentPreset(AudioVisualizer *visualizer,
   preset.name = name;
   preset.visualizerConfig = config;
   preset.shaderConfig = shaderConfig;
-  preset.syncMode = visualizer->getSyncMode();
 
   // Collect all waveform configurations
   for (size_t i = 0; i < visualizer->getWaveformCount(); ++i) {
@@ -281,7 +285,6 @@ void UIManager::loadPreset(AudioVisualizer *visualizer,
     // Apply configurations
     config = preset.visualizerConfig;
     shaderConfig = preset.shaderConfig;
-    visualizer->setSyncMode(preset.syncMode);
 
     // Clear existing waveforms
     while (visualizer->getWaveformCount() > 0) {

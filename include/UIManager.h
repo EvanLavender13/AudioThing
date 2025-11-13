@@ -31,10 +31,12 @@ private:
   bool showSaveDialog = false;
   bool showLoadDialog = false;
   
-  void drawGlobalSettings(float fps, float frameTime);
-  void drawWaveformList(AudioVisualizer *visualizer);
-  void drawWaveformSettings(AudioVisualizer *visualizer);
-  void drawPresetManager(AudioVisualizer *visualizer);
+  // Helper methods for drawing sections within the single window
+  void drawPerformanceSection(float fps, float frameTime);
+  void drawShaderEffectsSection();
+  void drawWaveformListSection(AudioVisualizer *visualizer);
+  void drawWaveformSettingsSection(AudioVisualizer *visualizer);
+  void drawPresetManagerSection(AudioVisualizer *visualizer);
   
   // Preset operations
   void refreshPresetList();
